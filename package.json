@@ -1,0 +1,45 @@
+{
+  "name": "yumeri-plugin-oauth",
+  "version": "1.0.0",
+  "description": "Oauth server for yumeri",
+  "main": "dist/index.js",
+  "dev": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "static"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "yarn build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yumerijs/yumeri-plugin-oauth.git"
+  },
+  "keywords": [
+    "yumeri",
+    "api",
+    "webserver"
+  ],
+  "author": "WindyPear-Team,FireGuo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yumerijs/yumeri-plugin-oauth/issues"
+  },
+  "homepage": "https://github.com/yumerijs/yumeri-plugin-oauth#readme",
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.14.1",
+    "@types/qs": "^6",
+    "@yumerijs/types": "1.0.3",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "axios": "^1.10.0",
+    "js-yaml": "^4.1.0",
+    "qs": "^6.14.0",
+    "yumeri": "1.1.0",
+    "yumeri-plugin-server": "1.1.0"
+  }
+}

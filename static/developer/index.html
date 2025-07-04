@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开发者中心 - 应用管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            background: #fff;
+            border-bottom: 1px solid #e1e8ed;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1890ff;
+        }
+
+        .navbar-brand::before {
+            content: "🔗";
+            margin-right: 8px;
+            font-size: 24px;
+        }
+
+        .navbar-nav {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .navbar-nav a {
+            text-decoration: none;
+            color: #666;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .navbar-nav a:hover,
+        .navbar-nav a.active {
+            color: #1890ff;
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1890ff 0%, #722ed1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* 主要内容区域 */
+        .main-container {
+            margin-top: 60px;
+            padding: 30px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: #8c8c8c;
+            font-size: 16px;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 16px 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f5f5f5;
+            border-radius: 6px;
+            padding: 8px 12px;
+            width: 300px;
+        }
+
+        .search-box input {
+            border: none;
+            background: none;
+            outline: none;
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .search-box::before {
+            content: "🔍";
+            margin-right: 8px;
+            opacity: 0.6;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e6e6e6;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+
+        /* 应用列表 */
+        .app-list {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .app-item {
+            padding: 24px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+        }
+
+        .app-item:hover {
+            background: #fafafa;
+        }
+
+        .app-item:last-child {
+            border-bottom: none;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .app-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .app-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #1890ff 0%, #722ed1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .app-details h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 4px;
+        }
+
+        .app-id {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #8c8c8c;
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .app-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .meta-label {
+            font-size: 12px;
+            color: #8c8c8c;
+            font-weight: 500;
+        }
+
+        .meta-value {
+            font-size: 14px;
+            color: #262626;
+        }
+
+        .app-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #8c8c8c;
+            padding: 4px;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #262626;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .form-control.textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-top: 4px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8c8c8c;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #595959;
+        }
+
+        .empty-state p {
+            margin-bottom: 24px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 16px;
+            }
+
+            .navbar-nav {
+                display: none;
+            }
+
+            .main-container {
+                padding: 20px 16px;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                gap: 16px;
+                align-items: stretch;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .app-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .app-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .app-actions {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-brand">开发者中心</div>
+        <ul class="navbar-nav">
+            <li><a href="#" class="active">我的应用</a></li>
+            <li><a href="#">API文档</a></li>
+            <li><a href="#">数据统计</a></li>
+            <li><a href="#">帮助中心</a></li>
+        </ul>
+        <div class="navbar-user">
+            <span>开发者</span>
+            <div class="user-avatar">张</div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">我的应用</h1>
+            <p class="page-subtitle">管理您的OAuth应用和API密钥</p>
+        </div>
+
+        <!-- 操作栏 -->
+        <div class="action-bar">
+            <div class="search-box">
+                <input type="text" placeholder="搜索应用名称或AppID" id="searchInput">
+            </div>
+            <button class="btn btn-primary" onclick="showCreateModal()">
+                ➕ 创建应用
+            </button>
+        </div>
+
+        <!-- 应用列表 -->
+        <div class="app-list" id="appList">
+            <!-- 应用项将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <!-- 复制client secret模态框 -->
+    <div class="modal" id="secretModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">复制Client Secret</h2>
+                <button class="modal-close" onclick="hideModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>请妥善保管您的Client Secret，不要将其泄露给他人。</p>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="secretInput" readonly>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="copySecret()">复制</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建/编辑应用模态框 -->
+    <div class="modal" id="appModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">创建应用</h2>
+                <button class="modal-close" onclick="hideModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="appForm">
+                    <div class="form-group">
+                        <label class="form-label">应用名称 *</label>
+                        <input type="text" class="form-control" id="appName" required>
+                        <div class="form-help">应用的显示名称，用户在授权时会看到</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">应用描述</label>
+                        <textarea class="form-control textarea" id="appDescription"
+                            placeholder="简要描述您的应用功能和用途"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">应用官网</label>
+                        <input type="url" class="form-control" id="appWebsite" placeholder="https://yumeri.dev">
+                        <div class="form-help">应用的官方网站地址</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">用户协议地址</label>
+                        <input type="url" class="form-control" id="appTos" placeholder="https://yumeri.dev">
+                        <div class="form-help">应用的用户协议地址</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">回调地址 *</label>
+                        <input type="url" class="form-control" id="appCallback" required
+                            placeholder="https://example.com/callback">
+                        <div class="form-help">OAuth授权完成后的回调地址，支持多个地址用换行分隔</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">应用图标</label>
+                        <input type="file" class="form-control" id="appIcon" accept="image/*">
+                        <div class="form-help">推荐尺寸：128x128px，支持PNG、JPG格式</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">授权范围 (scope)</label>
+                        <select multiple class="form-control" id="appScope">
+                            <option value="openid">openid - 用户基础身份</option>
+                            <option value="email">email - 用户邮箱</option>
+                            <option value="phone">phone - 用户手机号</option>
+                            <option value="profile">profile - 用户头像、昵称等</option>
+                        </select>
+                        <div class="form-help">按住 Ctrl（或 Mac 上的 Cmd）选择多个，实际发往后端是空格拼接的字符串</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveApp()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let apps = [];
+
+        // 获取应用列表
+        async function fetchApps() {
+            try {
+                const response = await fetch('/developer/api/getapps');
+                if (!response.ok) throw new Error('请求失败');
+                const data = await response.json();
+
+                // 转换后端返回格式为前端可用格式，scope拆成数组
+                apps = data.map(app => ({
+                    id: app.id,
+                    name: app.name,
+                    appId: app.clientid,
+                    description: app.description,
+                    website: app.website,
+                    callback: app.redirecturi,
+                    createdAt: app.createAt,
+                    tos: app.tos,
+                    lastUsed: '未知', // 暂无数据
+                    scope: app.scope ? app.scope.split(' ') : [] // 关键：拆字符串成数组
+                }));
+
+                renderAppList();
+            } catch (err) {
+                console.error('获取应用列表失败：', err);
+                alert('加载应用失败，请稍后再试');
+            }
+        }
+
+        let editingAppId = null;
+
+        // 渲染应用列表
+        function renderAppList(filteredApps = apps) {
+            const appList = document.getElementById('appList');
+
+            if (filteredApps.length === 0) {
+                appList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📱</div>
+                        <h3>暂无应用</h3>
+                        <p>您还没有创建任何应用，点击"创建应用"开始吧！</p>
+                        <button class="btn btn-primary" onclick="showCreateModal()">创建应用</button>
+                    </div>
+                `;
+                return;
+            }
+
+            appList.innerHTML = filteredApps.map(app => `
+                <div class="app-item">
+                    <div class="app-header">
+                        <div class="app-info">
+                            <div class="app-icon">${app.name.charAt(0).toUpperCase()}</div>
+                            <div class="app-details">
+                                <h3>${app.name}</h3>
+                                <span class="app-id">AppID: ${app.appId}</span>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="app-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">创建时间</span>
+                            <span class="meta-value">${app.createdAt}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">最后使用</span>
+                            <span class="meta-value">${app.lastUsed}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">回调地址</span>
+                            <span class="meta-value">${app.callback}</span>
+                        </div>
+                    </div>
+    
+                    <div class="app-actions">
+                        <button class="btn btn-secondary btn-small" onclick="editApp(${app.id})">编辑</button>
+                        <button class="btn btn-secondary btn-small" onclick="viewStats(${app.id})">数据统计</button>
+                        <button class="btn btn-secondary btn-small" onclick="resetSecret(${app.id})">重置密钥</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteApp(${app.id})">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 显示创建应用模态框
+        function showCreateModal() {
+            editingAppId = null;
+            document.getElementById('modalTitle').textContent = '创建应用';
+            document.getElementById('appForm').reset();
+            document.getElementById('appModal').classList.add('show');
+        }
+
+        // 编辑应用
+        function editApp(appId) {
+            const app = apps.find(a => a.id === appId);
+            if (!app) return;
+
+            editingAppId = appId;
+            document.getElementById('modalTitle').textContent = '编辑应用';
+            document.getElementById('appName').value = app.name;
+            document.getElementById('appDescription').value = app.description || '';
+            document.getElementById('appTos').value = app.tos || '';
+            document.getElementById('appWebsite').value = app.website || '';
+            document.getElementById('appCallback').value = app.callback;
+            setSelectScopes(app.scope || []);
+            document.getElementById('appModal').classList.add('show');
+        }
+
+        function setSelectScopes(scopeArray) {
+            const select = document.getElementById('appScope');
+            const options = Array.from(select.options);
+            options.forEach(option => {
+                option.selected = scopeArray.includes(option.value);
+            });
+        }
+
+
+
+        // 获取选中的scope，返回空格拼接字符串
+        function getSelectedScopesString() {
+            const select = document.getElementById('appScope');
+            const selected = Array.from(select.selectedOptions).map(option => option.value);
+            return selected.join(' ');
+        }
+
+
+        // 隐藏模态框
+        function hideModal() {
+            document.getElementById('appModal').classList.remove('show');
+            document.getElementById('secretModal').classList.remove('show');
+        }
+
+        // 保存应用
+        async function saveApp() {
+            const form = document.getElementById('appForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const scopeStr = getSelectedScopesString();
+            if (!scopeStr) {
+                alert('至少选择一个授权作用域');
+                return;
+            }
+
+            const appData = {
+                name: document.getElementById('appName').value.trim(),
+                description: document.getElementById('appDescription').value.trim(),
+                website: document.getElementById('appWebsite').value.trim(),
+                callback: document.getElementById('appCallback').value.trim(),
+                tos: document.getElementById('appTos').value.trim(),
+                scope: scopeStr // 传给后端的带空格字符串
+            };
+
+            // 清空编辑框内容
+            document.getElementById('appForm').reset();
+
+            if (editingAppId) {
+                // 编辑现有应用
+                const appIndex = apps.findIndex(a => a.id === editingAppId);
+                if (appIndex !== -1) {
+                    apps[appIndex] = { ...apps[appIndex], ...appData };
+                }
+
+                fetch('/developer/api/editapp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        appId: apps[appIndex].appId,
+                        appData: appData
+                    })
+                }).then(response => {
+                    if (response.ok) {
+                        alert('应用信息已更新！');
+                        fetchApps();
+                    } else {
+                        alert('应用信息更新失败！');
+                    }
+                });
+            } else {
+                // 创建新应用
+                const response = await fetch('/developer/api/createapp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ appData: appData })
+                })
+                if (response.ok) {
+                    const data = await response.json();
+                    const secret = data.data.clientsecret;
+                    document.getElementById('secretInput').value = secret;
+                    document.getElementById('secretModal').classList.add('show');
+                    // alert('应用已创建！');
+                    fetchApps();
+                } else {
+                    alert('应用创建失败！');
+                }
+            }
+
+            hideModal();
+            renderAppList();
+        }
+
+        // 删除应用
+        function deleteApp(id) {
+            if (confirm('确定要删除这个应用吗？此操作不可撤销。')) {
+                // 调用deleteapp
+                const appId = apps.find(app => app.id === id).appId;
+                fetch('/developer/api/deleteapp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        appId: appId,
+                    })
+                }).then(response => {
+                    if (response.ok) {
+                        // 从apps中删除
+                        const appIndex = apps.findIndex(app => app.appId === appId);
+                        if (appIndex !== -1) {
+                            apps.splice(appIndex, 1);
+                        }
+                        alert('应用已删除！');
+                        renderAppList(apps);
+                    } else {
+                        alert('应用删除失败！');
+                    }
+                })
+            }
+        }
+
+        // 查看统计数据
+        function viewStats(appId) {
+            alert('跳转到应用数据统计页面（功能待实现）');
+        }
+
+        // 重置密钥
+        async function resetSecret(id) {
+            const appId = apps.find(app => app.id === id).appId;
+            if (confirm('确定要重置应用密钥吗？重置后需要更新您的应用配置。')) {
+                console.log(appId)
+                // 发送编辑应用消息至后端
+                const response = await fetch('/developer/api/refreshsecret', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        appId: appId,
+                    })
+                })
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('secretInput').value = data.data.clientsecret;
+                    document.getElementById('secretModal').classList.add('show');
+                } else {
+                    alert('应用密钥重置失败！');
+                }
+            }
+        }
+
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function (e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredApps = apps.filter(app =>
+                app.name.toLowerCase().includes(searchTerm) ||
+                app.appId.toLowerCase().includes(searchTerm)
+            );
+            renderAppList(filteredApps);
+        });
+
+        // 点击模态框外部关闭
+        document.getElementById('appModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                hideModal();
+            }
+        });
+
+        // secret模态框同
+        document.getElementById('secretModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                hideModal();
+            }
+        });
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function () {
+            fetchApps();
+        });
+    </script>
+
+</body>
+
+</html>
