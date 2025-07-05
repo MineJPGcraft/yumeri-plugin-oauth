@@ -190,6 +190,25 @@ export async function apply(ctx: Context, config: Config) {
               session.body = { code: 200, message: '修改成功' }.toString();
             }
           }
+          if (param.path === '/adminapi/deleteapp') {
+            session.setMime('json');
+            if (param.id) {
+              await database.delete('oauth_apps', { id: param.id });
+              session.body = { code: 200, message: '删除成功' }.toString();
+            }
+          }
+          if (param.path === '/adminapi/getdevelopers') {
+            session.setMime('json');
+            // 从oauth_apps中获取developerid
+            const developers = await database.find('oauth_apps', { select: ['developerid'] });
+            const developerids = developers.map((developer) => developer.developerid);
+            // 获取每个开发者总共开发的应用数量
+            const developerapps = await Promise.all(developerids.map(async (developerid) => {
+              const apps = await database.find('oauth_apps', { developerid });
+              return { developerid, appcount: apps.length };
+            }));
+            session.body = developerapps.toString();
+          }
         }
       }
       if (param.path.startsWith('/api/')) {
@@ -265,7 +284,7 @@ export async function apply(ctx: Context, config: Config) {
       } else if (param.path === '/userinfo') {
         session.setMime('json');
         const header: Record<string, any> = session.properties?.req.headers;
-        logger.info(header)
+        // logger.info(header)
         if (!header.authorization) return;
         const token = header.authorization.split(' ')[1]
         if (header.authorization.split(' ')[0] !== 'Bearer') return;
@@ -290,6 +309,7 @@ export async function apply(ctx: Context, config: Config) {
         session.body = JSON.stringify(parseduserinfo);
         // logger.info(session.body)
       } else if (param.path === '/accesstoken') {
+        // logger.info(param)
         session.setMime('json');
         if (!param.code) return;
         const result = await database.findOne('oauth_authorization_code', { code: param.code })
@@ -305,7 +325,7 @@ export async function apply(ctx: Context, config: Config) {
           userid: result.userid,
           scope: result.scope
         })
-        // session.body = JSON.stringify({ access_token: token, expires_in: 604800, token_type: 'Bearer' })
+        session.body = JSON.stringify({ access_token: token, expires_in: 604800, token_type: 'Bearer' })
       }
     });
   ctx.command('developer')

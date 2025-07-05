@@ -1,6 +1,6 @@
 {
   "name": "yumeri-plugin-oauth",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Oauth server for yumeri",
   "main": "dist/index.js",
   "dev": "src/index.ts",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yumerijs/yumeri-plugin-oauth.git"
+    "url": "git+https://github.com/MineJPGcraft/yumeri-plugin-oauth.git"
   },
   "keywords": [
     "yumeri",
@@ -25,9 +25,9 @@
   "author": "WindyPear-Team,FireGuo",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/yumerijs/yumeri-plugin-oauth/issues"
+    "url": "https://github.com/MineJPGcraft/yumeri-plugin-oauth/issues"
   },
-  "homepage": "https://github.com/yumerijs/yumeri-plugin-oauth#readme",
+  "homepage": "https://github.com/MineJPGcraft/yumeri-plugin-oauth#readme",
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.14.1",
@@ -39,7 +39,7 @@
     "axios": "^1.10.0",
     "js-yaml": "^4.1.0",
     "qs": "^6.14.0",
-    "yumeri": "1.1.0",
-    "yumeri-plugin-server": "1.1.0"
+    "yumeri": "^1.1.0",
+    "yumeri-plugin-server": "^1.1.0"
   }
 }

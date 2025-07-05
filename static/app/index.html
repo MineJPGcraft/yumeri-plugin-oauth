@@ -1,0 +1,798 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth应用后台管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            min-width: 300px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus-within {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .search-box input {
+            border: none;
+            background: none;
+            outline: none;
+            flex: 1;
+            margin-left: 10px;
+            font-size: 16px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 8px 25px rgba(107, 114, 128, 0.3);
+        }
+
+        .apps-table {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .table-header h3 {
+            font-size: 1.5rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-content {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .app-row {
+            transition: all 0.3s ease;
+        }
+
+        .app-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 16px;
+        }
+
+        .app-id {
+            font-family: 'Monaco', 'Menlo', monospace;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .app-url {
+            color: #4f46e5;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .app-url:hover {
+            text-decoration: underline;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 8px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            animation: modalSlideIn 0.3s ease forwards;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 5px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #f1f5f9;
+            color: #374151;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            background: white;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f1f5f9;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f1f5f9;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid #10b981;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            border-left-color: #ef4444;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: scale(0.9) translateY(-20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 12px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: auto;
+            }
+
+            .table-content {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 12px 16px;
+            }
+
+            .modal-content {
+                margin: 20px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 OAuth应用后台管理</h1>
+            <p>管理和维护OAuth应用程序配置</p>
+        </div>
+
+        <div class="main-content">
+            <div class="toolbar">
+                <div class="search-box">
+                    <span>🔍</span>
+                    <input type="text" id="searchInput" placeholder="搜索应用名称或ID...">
+                </div>
+            </div>
+
+            <div class="apps-table">
+                <div class="table-header">
+                    <h3>📱 应用列表</h3>
+                </div>
+                <div class="table-content">
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <p>正在加载应用列表...</p>
+                    </div>
+                    <div id="appsTableContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑/添加应用模态框 -->
+    <div class="modal" id="appModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">✏️ 编辑应用</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="appForm">
+                <div class="form-group">
+                    <label for="appName">应用名称</label>
+                    <input type="text" id="appName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientId">客户端ID</label>
+                    <input type="text" id="clientId" name="clientid" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientSecret">客户端密钥</label>
+                    <input type="text" id="clientSecret" name="clientsecret" required>
+                </div>
+                <div class="form-group">
+                    <label for="redirectUri">回调URL</label>
+                    <input type="url" id="redirectUri" name="redirecturi" required>
+                </div>
+                <div class="form-group">
+                    <label for="scope">权限范围</label>
+                    <input type="text" id="scope" name="scope" placeholder="例如：read,write">
+                </div>
+                <div class="form-group">
+                    <label for="developerId">开发者ID</label>
+                    <input type="text" id="developerId" name="developerid" required>
+                </div>
+                <div class="form-group">
+                    <label for="appDescription">应用描述</label>
+                    <textarea id="appDescription" name="description" placeholder="可选：应用描述信息"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="website">官网地址</label>
+                    <input type="url" id="website" name="website" value="https://yumeri.dev">
+                </div>
+                <div class="form-group">
+                    <label for="tos">服务条款</label>
+                    <input type="url" id="tos" name="tos" value="https://yumeri.dev">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        ❌ 取消
+                    </button>
+                    <button type="submit" class="btn" id="saveBtn">
+                        💾 保存
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let apps = [];
+        let currentEditingApp = null;
+
+        // 页面加载时获取应用列表
+        document.addEventListener('DOMContentLoaded', function() {
+            loadApps();
+            setupSearch();
+        });
+
+        // 加载应用列表
+        async function loadApps() {
+            showLoading(true);
+            try {
+                const response = await fetch('/oauth/adminapi/getapps');
+                if (response.ok) {
+                    const data = await response.json();
+                    apps = Array.isArray(data) ? data : [];
+                    renderAppsTable();
+                } else {
+                    showToast('加载应用列表失败', 'error');
+                    apps = [];
+                    renderAppsTable();
+                }
+            } catch (error) {
+                console.error('加载应用列表失败:', error);
+                showToast('网络错误，无法加载应用列表', 'error');
+                apps = [];
+                renderAppsTable();
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 渲染应用表格
+        function renderAppsTable(filteredApps = null) {
+            const container = document.getElementById('appsTableContainer');
+            const appsToRender = filteredApps || apps;
+
+            if (appsToRender.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📱</div>
+                        <h3>暂无应用</h3>
+                        <p>当前系统中没有OAuth应用</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>应用名称</th>
+                            <th>客户端ID</th>
+                            <th>回调URL</th>
+                            <th>权限范围</th>
+                            <th>开发者ID</th>
+                            <th>描述</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${appsToRender.map(app => `
+                            <tr class="app-row">
+                                <td>
+                                    <div class="app-name">${escapeHtml(app.name || '未命名应用')}</div>
+                                </td>
+                                <td>
+                                    <span class="app-id">${escapeHtml(app.clientid || '')}</span>
+                                </td>
+                                <td>
+                                    <a href="${escapeHtml(app.redirecturi || '')}" class="app-url" target="_blank">
+                                        ${escapeHtml(app.redirecturi || '')}
+                                    </a>
+                                </td>
+                                <td>${escapeHtml(app.scope || '无')}</td>
+                                <td>${escapeHtml(app.developerid || '')}</td>
+                                <td>${escapeHtml(app.description || '无描述')}</td>
+                                <td>
+                                    <div class="actions">
+                                        <button class="btn btn-small" onclick="editApp(${app.id})">
+                                            ✏️ 编辑
+                                        </button>
+                                        <button class="btn btn-small btn-danger" onclick="deleteApp(${app.id}, '${escapeHtml(app.name || '未命名应用')}')">
+                                            🗑️ 删除
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+
+        // 搜索功能
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                if (query === '') {
+                    renderAppsTable();
+                } else {
+                    const filteredApps = apps.filter(app => 
+                        (app.name && app.name.toLowerCase().includes(query)) ||
+                        (app.clientid && app.clientid.toLowerCase().includes(query)) ||
+                        (app.developerid && app.developerid.toLowerCase().includes(query))
+                    );
+                    renderAppsTable(filteredApps);
+                }
+            });
+        }
+
+        // 编辑应用
+        function editApp(appId) {
+            const app = apps.find(a => a.id === appId);
+            if (!app) {
+                showToast('应用不存在', 'error');
+                return;
+            }
+
+            currentEditingApp = app;
+            document.getElementById('modalTitle').innerHTML = '✏️ 编辑应用';
+            document.getElementById('saveBtn').innerHTML = '💾 保存修改';
+            
+            // 填充表单
+            document.getElementById('appName').value = app.name || '';
+            document.getElementById('clientId').value = app.clientid || '';
+            document.getElementById('clientSecret').value = app.clientsecret || '';
+            document.getElementById('redirectUri').value = app.redirecturi || '';
+            document.getElementById('scope').value = app.scope || '';
+            document.getElementById('developerId').value = app.developerid || '';
+            document.getElementById('appDescription').value = app.description || '';
+            document.getElementById('website').value = app.website || 'https://yumeri.dev';
+            document.getElementById('tos').value = app.tos || 'https://yumeri.dev';
+            
+            document.getElementById('appModal').classList.add('show');
+        }
+
+        // 删除应用
+        async function deleteApp(appId, appName) {
+            if (!confirm(`确定要删除应用"${appName}"吗？此操作不可撤销。`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/oauth/adminapi/deleteapp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: appId })
+                });
+
+                if (response.ok) {
+                    showToast('应用删除成功');
+                    loadApps(); // 重新加载列表
+                } else {
+                    showToast('删除应用失败', 'error');
+                }
+            } catch (error) {
+                console.error('删除应用失败:', error);
+                showToast('网络错误，删除失败', 'error');
+            }
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('appModal').classList.remove('show');
+            currentEditingApp = null;
+        }
+
+        // 表单提交
+        document.getElementById('appForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!currentEditingApp) {
+                showToast('错误：无法确定要编辑的应用', 'error');
+                return;
+            }
+            
+            const formData = new FormData(this);
+            const appData = {
+                name: formData.get('name'),
+                clientid: formData.get('clientid'),
+                clientsecret: formData.get('clientsecret'),
+                redirecturi: formData.get('redirecturi'),
+                scope: formData.get('scope'),
+                developerid: formData.get('developerid'),
+                description: formData.get('description'),
+                website: formData.get('website'),
+                tos: formData.get('tos')
+            };
+
+            try {
+                const response = await fetch('/oauth/adminapi/editapp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        id: currentEditingApp.id,
+                        data: appData
+                    })
+                });
+
+                if (response.ok) {
+                    showToast('应用更新成功');
+                    closeModal();
+                    loadApps(); // 重新加载列表
+                } else {
+                    showToast('保存应用失败', 'error');
+                }
+            } catch (error) {
+                console.error('保存应用失败:', error);
+                showToast('网络错误，保存失败', 'error');
+            }
+        });
+
+        // 显示/隐藏加载状态
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            if (show) {
+                loading.classList.add('show');
+            } else {
+                loading.classList.remove('show');
+            }
+        }
+
+        // 显示提示消息
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span>${type === 'error' ? '❌' : '✅'}</span>
+                    <span>${escapeHtml(message)}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // 显示动画
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        // HTML转义函数
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('appModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // ESC键关闭模态框
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
+
